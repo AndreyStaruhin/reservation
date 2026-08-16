@@ -2,6 +2,7 @@ package dev.andrey;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.time.*;
 
 /**
@@ -10,26 +11,31 @@ import java.time.*;
 public class ModernReservation {
 
     private final String room;
+
     public String getRoom() {
         return room;
     }
 
     private final String reservedBy;
+
     public String getReservedBy() {
         return reservedBy;
     }
 
     private final Instant start;
+
     public Instant getStart() {
         return start;
     }
 
     private final Instant end;
+
     public Instant getEnd() {
         return end;
     }
 
     private final String comment;
+
     public String getComment() {
         return comment;
     }
@@ -57,10 +63,33 @@ public class ModernReservation {
         return errors;
     }
 
-    private ModernReservation(String room, String reservedBy, Instant start, Instant end, String comment) {
-        var errors = baseValidation(room, reservedBy, start, end, comment); 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if(obj == null) {
+            return false;
+        }
+        var another = (ModernReservation) obj;
+        return this.room.equals(another.room)
+                && this.start.equals(another.start)
+                && this.end.equals(another.end);
+    }
 
-    
+    @Override
+    public int hashCode() {
+        return Objects.hash(room, start, end);
+    }
+
+    @Override
+    public String toString() {
+        return "Room " + room + " reserved by " + reservedBy + " from " + start + " to " + end;
+    }
+
+    private ModernReservation(String room, String reservedBy, Instant start, Instant end, String comment) {
+        var errors = baseValidation(room, reservedBy, start, end, comment);
+        
         if (!errors.isEmpty()) {
             throw new IllegalArgumentException(errors.toString());
         }
@@ -76,7 +105,7 @@ public class ModernReservation {
         if (start.isBefore(Instant.now())) {
             throw new IllegalArgumentException("Нельзя забронировать на время в прошлом");
         }
-        return new ModernReservation(room, reservedBy, start, end, comment); 
+        return new ModernReservation(room, reservedBy, start, end, comment);
     }
 
     public ModernReservation extend(Instant newEndTime) {
