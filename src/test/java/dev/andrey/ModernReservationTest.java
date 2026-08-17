@@ -26,13 +26,15 @@ public class ModernReservationTest {
      @Test
     public void TwoDifferentReservationsWithSameRoomStartAndEnd_differentReservedByAndComment__EqualsEachOther() {
         var room = "room 1";
-        var reservedBy = "Andrey";
+        var reservedBy1 = "Andrey";
+        var reservedBy2 = "Bob";
         var start = Instant.now().plus(1, ChronoUnit.MINUTES);
         var end = start.plus(1, ChronoUnit.HOURS);
-        var comment = "";
+        var comment1 = "Comment1";
+        var comment2 = "Comment2";
 
-        var reservation1 = ModernReservation.make(room, reservedBy, start, end, comment);
-        var reservation2 = ModernReservation.make(room, reservedBy, start, end, comment);
+        var reservation1 = ModernReservation.make(room, reservedBy1, start, end, comment1);
+        var reservation2 = ModernReservation.make(room, reservedBy2, start, end, comment2);
 
         assertThat(reservation1).isEqualTo(reservation2);
     }
