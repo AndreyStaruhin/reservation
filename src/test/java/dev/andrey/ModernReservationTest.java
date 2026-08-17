@@ -63,9 +63,8 @@ public class ModernReservationTest {
         var comment = "";
 
         var reservation1 = ModernReservation.make(room1, reservedBy, start, end, comment);
-        ModernReservation reservation2 = null;
 
-        assertThat(reservation1).isNotEqualTo(reservation2);
+        assertThat(reservation1.equals(null)).isFalse();
     }
 
 
