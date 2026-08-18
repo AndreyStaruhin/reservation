@@ -116,4 +116,17 @@ public class ModernReservation {
     public ModernReservation passToAnotherRoom(String anotherRoom) {
         return new ModernReservation(anotherRoom, reservedBy, start, end, comment);
     }
+
+    public boolean checkIintersectsWith(ModernReservation other) {
+       
+        if(!room.equals(other.getRoom())) {
+            return false;
+        }
+
+
+        var isAfter = start.isAfter(other.end) || start.equals(other.end);
+        var isBefore = end.isBefore(other.start) || end.equals(other.start);
+        
+        return  (!isAfter && !isBefore);
+    }
 }
