@@ -5,6 +5,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -120,6 +121,36 @@ public class ModernReservationTest {
             endDateTime2, "");
     
        assertThat(reservation1.checkIintersectsWith(reservation2)).isEqualTo(intersected);
+    }
+
+    @Test
+    public void setRoomAsNull_makeRejectNullRoom() {
+
+        String room = null;
+        var reservedBy = "Andrey";
+        var start = Instant.now().plus(1, ChronoUnit.MINUTES);
+        var end = start.plus(1, ChronoUnit.HOURS);
+        var comment = "";
+
+        assertThatExceptionOfType(NullPointerException.class).isThrownBy(()-> {
+
+            ModernReservation.make(room, reservedBy, start, end, comment);
+        }).withMessageContaining("room cannot be null");      
+    }
+
+    @Test
+    public void setRoomAsEmpty_makeRejectEmptyRoom() {
+
+        String room = "";
+        var reservedBy = "Andrey";
+        var start = Instant.now().plus(1, ChronoUnit.MINUTES);
+        var end = start.plus(1, ChronoUnit.HOURS);
+        var comment = "";
+
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(()-> {
+
+            ModernReservation.make(room, reservedBy, start, end, comment);
+        }).withMessageContaining("Не указана комната");      
     }
 
     private Instant getNextDayDateTime(LocalTime time) {
