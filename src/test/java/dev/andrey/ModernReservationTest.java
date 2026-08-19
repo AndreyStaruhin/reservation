@@ -5,9 +5,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatException;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -141,7 +139,7 @@ public class ModernReservationTest {
     }
 
     @Test
-    public void setRoomAsEmpty_makeRejectNullEmpty() {
+    public void setRoomAsEmpty_makeRejectEmptyRoom() {
 
         String room = "";
         var reservedBy = "Andrey";
