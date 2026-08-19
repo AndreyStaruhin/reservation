@@ -88,6 +88,11 @@ public class ModernReservation {
     }
 
     private ModernReservation(String room, String reservedBy, Instant start, Instant end, String comment) {
+        Objects.requireNonNull(room, "room cannot be null");
+        Objects.requireNonNull(reservedBy, "reservedBy cannot be null");
+        Objects.requireNonNull(start, "start cannot be null");
+        Objects.requireNonNull(end, "end cannot be null");
+
         var errors = baseValidation(room, reservedBy, start, end, comment);
         
         if (!errors.isEmpty()) {
@@ -102,9 +107,12 @@ public class ModernReservation {
     }
 
     public static ModernReservation make(String room, String reservedBy, Instant start, Instant end, String comment) {
+        Objects.requireNonNull(start, "start cannot be null");
+
         if (start.isBefore(Instant.now())) {
             throw new IllegalArgumentException("Нельзя забронировать на время в прошлом");
         }
+        
         return new ModernReservation(room, reservedBy, start, end, comment);
     }
 
