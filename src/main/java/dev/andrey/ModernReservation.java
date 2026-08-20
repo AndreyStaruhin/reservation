@@ -65,12 +65,18 @@ public class ModernReservation {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
         if(obj == null) {
             return false;
         }
+       
+        if (this == obj) {
+            return true;
+        }
+
+        if(!(obj instanceof ModernReservation)) {
+            return false;
+        } 
+
         var another = (ModernReservation) obj;
         return this.room.equals(another.room)
                 && this.start.equals(another.start)
@@ -91,7 +97,7 @@ public class ModernReservation {
         Objects.requireNonNull(room, "room cannot be null");
         Objects.requireNonNull(reservedBy, "reservedBy cannot be null");
         Objects.requireNonNull(start, "start cannot be null");
-        Objects.requireNonNull(end, "end cannot be null");
+       // Objects.requireNonNull(end, "end cannot be null");
 
         var errors = baseValidation(room, reservedBy, start, end, comment);
         
