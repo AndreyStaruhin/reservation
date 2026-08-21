@@ -17,7 +17,7 @@ import java.time.temporal.ChronoUnit;
 public class ModernReservationTest {
 
     @Test
-    public void TwoDifferentReservationsWithSameFields__EqualsEachOther() {
+    public void reservation_sameFields_isEqual() {
         var room = "room 1";
         var reservedBy = "Andrey";
         var start = Instant.now().plus(1, ChronoUnit.MINUTES);
@@ -31,7 +31,7 @@ public class ModernReservationTest {
     }
 
     @Test
-    public void TwoDifferentReservationsWithSameRoomStartAndEnd_differentReservedByAndComment__EqualsEachOther() {
+    public void twoReservations_sameRoomStartAndEnd_areEqual() {
         var room = "room 1";
         var reservedBy1 = "Andrey";
         var reservedBy2 = "Bob";
@@ -47,7 +47,7 @@ public class ModernReservationTest {
     }
 
     @Test
-    public void TwoDifferentReservationsWithDifferntRooms_AnotherFieldsSame__NOTEqualsEachOther() {
+    public void twoReservations_onlyRoomsDifferent_areDifferent() {
         var room1 = "room 1";
         var room2 = "room 2";
         var reservedBy = "Andrey";
@@ -62,7 +62,7 @@ public class ModernReservationTest {
     }
 
     @Test
-    public void CompareWithNull_ReturnFalse() {
+    public void reservation_compareWithNull_isNotEqual() {
         var room1 = "room 1";
         var reservedBy = "Andrey";
         var start = Instant.now().plus(1, ChronoUnit.MINUTES);
@@ -75,7 +75,7 @@ public class ModernReservationTest {
     }
 
     @Test
-    public void TwoDifferentReservationsWithSameFields_haveSameHashCode() {
+    public void hashCode_sameIdentityFields_isEqual() {
         var room = "room 1";
         var reservedBy = "Andrey";
         var start = Instant.now().plus(1, ChronoUnit.MINUTES);
@@ -98,7 +98,7 @@ public class ModernReservationTest {
     ,"room1, room2, 10:00, 11:00,  10:30, 11:30, false"
     ,"room1, room1, 10:00, 11:00,  10:30, 10:45, true"
     ,"room1, room1, 10:00, 11:00,  09:30, 11:45, true"})
-    public void makeTwoReservationsForNextDay_intersectionIsOrNot(String room1, String room2, String start1, String end1,
+    public void twoReservations_twoTimeSlots_intersects(String room1, String room2, String start1, String end1,
             String start2, String end2, boolean intersected) {
 
         LocalTime startime1 = LocalTime.parse(start1);
@@ -123,23 +123,45 @@ public class ModernReservationTest {
        assertThat(reservation1.checkIintersectsWith(reservation2)).isEqualTo(intersected);
     }
 
-    @Test
-    public void setRoomAsNull_makeRejectNullRoom() {
+    @ParameterizedTest()
+    @CsvSource({
+        ",  10:00, 11:00, Andrey, room cannot be null",
+        "room1,  , 11:00, Andrey, start cannot be null",
+        "room1, 10:00 , , Andrey, end cannot be null",
+        "room1, 10:00 , 11:00, , reservedBy cannot be null"
+    })
+    public void reservation_paramIsNull_rejectByNull(String room,  String start, String end, String reservedBy, String errorMessage) {
+        LocalTime startTime = start == null ? null : LocalTime.parse(start);
+        Instant startDateTime = getNextDayDateTime(startTime);
 
-        String room = null;
+        LocalTime endTime = end == null ? null : LocalTime.parse(end);
+        Instant endDateTime = getNextDayDateTime(endTime);
+
+        var comment = "";
+
+        assertThatExceptionOfType(NullPointerException.class).isThrownBy(()-> {
+
+            ModernReservation.make(room, reservedBy, startDateTime, endDateTime, comment);
+        }).withMessageContaining(errorMessage);      
+    }
+
+    @Test
+    public void reservation_comparedWithBaseObject_isNotEqual() {
+        var room = "room 1";
         var reservedBy = "Andrey";
         var start = Instant.now().plus(1, ChronoUnit.MINUTES);
         var end = start.plus(1, ChronoUnit.HOURS);
         var comment = "";
 
-        assertThatExceptionOfType(NullPointerException.class).isThrownBy(()-> {
+        var reservation1 = ModernReservation.make(room, reservedBy, start, end, comment);
 
-            ModernReservation.make(room, reservedBy, start, end, comment);
-        }).withMessageContaining("room cannot be null");      
+        var nonReservation = new Object();
+
+        assertThat(reservation1.equals(nonReservation)).isFalse();
     }
 
     @Test
-    public void setRoomAsEmpty_makeRejectEmptyRoom() {
+    public void reservation_roomIsEmpty_rejectByEmpty() {
 
         String room = "";
         var reservedBy = "Andrey";
@@ -154,6 +176,9 @@ public class ModernReservationTest {
     }
 
     private Instant getNextDayDateTime(LocalTime time) {
+        if (time == null) {
+            return null;
+        }
         LocalDate date = LocalDate.now().plusDays(1);
 
         ZoneId zone = ZoneId.of("Europe/Moscow");
