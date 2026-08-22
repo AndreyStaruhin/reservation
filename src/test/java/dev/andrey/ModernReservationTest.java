@@ -7,6 +7,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -23,9 +24,10 @@ public class ModernReservationTest {
         var start = Instant.now().plus(1, ChronoUnit.MINUTES);
         var end = start.plus(1, ChronoUnit.HOURS);
         var comment = "";
+        var price1 = new BigDecimal("100.00");
 
-        var reservation1 = ModernReservation.make(room, reservedBy, start, end, comment);
-        var reservation2 = ModernReservation.make(room, reservedBy, start, end, comment);
+        var reservation1 = ModernReservation.make(room, reservedBy, start, end, price1, comment);
+        var reservation2 = ModernReservation.make(room, reservedBy, start, end, price1, comment);
 
         assertThat(reservation1).isEqualTo(reservation2);
     }
@@ -40,8 +42,10 @@ public class ModernReservationTest {
         var comment1 = "Comment1";
         var comment2 = "Comment2";
 
-        var reservation1 = ModernReservation.make(room, reservedBy1, start, end, comment1);
-        var reservation2 = ModernReservation.make(room, reservedBy2, start, end, comment2);
+        var price1 = new BigDecimal("100.00");
+
+        var reservation1 = ModernReservation.make(room, reservedBy1, start, end, price1, comment1);
+        var reservation2 = ModernReservation.make(room, reservedBy2, start, end, price1, comment2);
 
         assertThat(reservation1).isEqualTo(reservation2);
     }
@@ -54,9 +58,10 @@ public class ModernReservationTest {
         var start = Instant.now().plus(1, ChronoUnit.MINUTES);
         var end = start.plus(1, ChronoUnit.HOURS);
         var comment = "";
+        var price1 = new BigDecimal("100.00");
 
-        var reservation1 = ModernReservation.make(room1, reservedBy, start, end, comment);
-        var reservation2 = ModernReservation.make(room2, reservedBy, start, end, comment);
+        var reservation1 = ModernReservation.make(room1, reservedBy, start, end, price1, comment);
+        var reservation2 = ModernReservation.make(room2, reservedBy, start, end, price1, comment);
 
         assertThat(reservation1).isNotEqualTo(reservation2);
     }
@@ -68,8 +73,9 @@ public class ModernReservationTest {
         var start = Instant.now().plus(1, ChronoUnit.MINUTES);
         var end = start.plus(1, ChronoUnit.HOURS);
         var comment = "";
+        var price1 = new BigDecimal("100.00");
 
-        var reservation1 = ModernReservation.make(room1, reservedBy, start, end, comment);
+        var reservation1 = ModernReservation.make(room1, reservedBy, start, end, price1, comment);
 
         assertThat(reservation1.equals(null)).isFalse();
     }
@@ -81,9 +87,10 @@ public class ModernReservationTest {
         var start = Instant.now().plus(1, ChronoUnit.MINUTES);
         var end = start.plus(1, ChronoUnit.HOURS);
         var comment = "";
+        var price1 = new BigDecimal("100.00");
 
-        var reservation1 = ModernReservation.make(room, reservedBy, start, end, comment);
-        var reservation2 = ModernReservation.make(room, reservedBy, start, end, comment);
+        var reservation1 = ModernReservation.make(room, reservedBy, start, end, price1, comment);
+        var reservation2 = ModernReservation.make(room, reservedBy, start, end, price1, comment);
 
         assertThat(reservation1.hashCode()).isEqualTo(reservation2.hashCode());
     }
@@ -114,11 +121,12 @@ public class ModernReservationTest {
         Instant endDateTime2 = getNextDayDateTime(endTime2);
 
         String reservedBy = "Andrey";
+        var price1 = new BigDecimal("100.00");
         var reservation1 = ModernReservation.make(room1, reservedBy, startDateTime1, 
-            endDateTime1, "");
+            endDateTime1, price1, "");
 
        var reservation2 =  ModernReservation.make(room2, reservedBy, startDateTime2, 
-            endDateTime2, "");
+            endDateTime2, price1, "");
     
        assertThat(reservation1.checkIintersectsWith(reservation2)).isEqualTo(intersected);
     }
@@ -136,12 +144,13 @@ public class ModernReservationTest {
 
         LocalTime endTime = end == null ? null : LocalTime.parse(end);
         Instant endDateTime = getNextDayDateTime(endTime);
+        var price1 = new BigDecimal("100.00");
 
         var comment = "";
 
         assertThatExceptionOfType(NullPointerException.class).isThrownBy(()-> {
 
-            ModernReservation.make(room, reservedBy, startDateTime, endDateTime, comment);
+            ModernReservation.make(room, reservedBy, startDateTime, endDateTime, price1, comment);
         }).withMessageContaining(errorMessage);      
     }
 
@@ -152,8 +161,9 @@ public class ModernReservationTest {
         var start = Instant.now().plus(1, ChronoUnit.MINUTES);
         var end = start.plus(1, ChronoUnit.HOURS);
         var comment = "";
+        var price1 = new BigDecimal("100.00");
 
-        var reservation1 = ModernReservation.make(room, reservedBy, start, end, comment);
+        var reservation1 = ModernReservation.make(room, reservedBy, start, end, price1, comment);
 
         var nonReservation = new Object();
 
@@ -168,11 +178,27 @@ public class ModernReservationTest {
         var start = Instant.now().plus(1, ChronoUnit.MINUTES);
         var end = start.plus(1, ChronoUnit.HOURS);
         var comment = "";
+        var price1 = new BigDecimal("100.00");
 
         assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(()-> {
 
-            ModernReservation.make(room, reservedBy, start, end, comment);
+            ModernReservation.make(room, reservedBy, start, end, price1, comment);
         }).withMessageContaining("Не указана комната");      
+    }
+
+    @Test
+    public void reservation_priceWithScaleEquas1_sacaleEquals2() {
+        var room = "room 1";
+        var reservedBy = "Andrey";
+        var start = Instant.now().plus(1, ChronoUnit.MINUTES);
+        var end = start.plus(1, ChronoUnit.HOURS);
+        var comment = "";
+
+        var price1 = new BigDecimal("100.0");
+
+        var reservation1 = ModernReservation.make(room, reservedBy, start, end, price1, comment);
+
+        assertThat(reservation1.getPrice().scale()).isEqualTo(2);
     }
 
     private Instant getNextDayDateTime(LocalTime time) {
