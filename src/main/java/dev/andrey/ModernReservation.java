@@ -97,7 +97,7 @@ public class ModernReservation {
         Objects.requireNonNull(room, "room cannot be null");
         Objects.requireNonNull(reservedBy, "reservedBy cannot be null");
         Objects.requireNonNull(start, "start cannot be null");
-       // Objects.requireNonNull(end, "end cannot be null");
+        Objects.requireNonNull(end, "end cannot be null");
 
         var errors = baseValidation(room, reservedBy, start, end, comment);
         
