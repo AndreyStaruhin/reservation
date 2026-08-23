@@ -3,6 +3,8 @@ package dev.andrey;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.*;
 
 /**
@@ -32,6 +34,12 @@ public class ModernReservation {
 
     public Instant getEnd() {
         return end;
+    }
+
+    private final BigDecimal price;
+
+    public BigDecimal getPrice() {
+        return price;
     }
 
     private final String comment;
@@ -93,7 +101,7 @@ public class ModernReservation {
         return "Room " + room + " reserved by " + reservedBy + " from " + start + " to " + end;
     }
 
-    private ModernReservation(String room, String reservedBy, Instant start, Instant end, String comment) {
+    private ModernReservation(String room, String reservedBy, Instant start, Instant end, BigDecimal price, String comment) {
         Objects.requireNonNull(room, "room cannot be null");
         Objects.requireNonNull(reservedBy, "reservedBy cannot be null");
         Objects.requireNonNull(start, "start cannot be null");
@@ -110,25 +118,26 @@ public class ModernReservation {
         this.start = start;
         this.end = end;
         this.comment = comment;
+        this.price = price.setScale(2, RoundingMode.UNNECESSARY);
     }
 
-    public static ModernReservation make(String room, String reservedBy, Instant start, Instant end, String comment) {
+    public static ModernReservation make(String room, String reservedBy, Instant start, Instant end, BigDecimal price,  String comment) {
         Objects.requireNonNull(start, "start cannot be null");
 
         if (start.isBefore(Instant.now())) {
             throw new IllegalArgumentException("Нельзя забронировать на время в прошлом");
         }
         
-        return new ModernReservation(room, reservedBy, start, end, comment);
+        return new ModernReservation(room, reservedBy, start, end, price, comment);
     }
 
     public ModernReservation extend(Instant newEndTime) {
 
-        return new ModernReservation(room, reservedBy, start, newEndTime, comment);
+        return new ModernReservation(room, reservedBy, start, newEndTime, price, comment);
     }
 
     public ModernReservation passToAnotherRoom(String anotherRoom) {
-        return new ModernReservation(anotherRoom, reservedBy, start, end, comment);
+        return new ModernReservation(anotherRoom, reservedBy, start, end, price, comment);
     }
 
     public boolean checkIintersectsWith(ModernReservation other) {
