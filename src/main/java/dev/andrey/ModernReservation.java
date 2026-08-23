@@ -140,7 +140,7 @@ public class ModernReservation {
         return new ModernReservation(anotherRoom, reservedBy, start, end, price, comment);
     }
 
-    public boolean checkIintersectsWith(ModernReservation other) {
+    public boolean intersectsWith(ModernReservation other) {
        
         if(!room.equals(other.getRoom())) {
             return false;
