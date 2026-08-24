@@ -201,6 +201,34 @@ public class ModernReservationTest {
         assertThat(reservation1.getPrice().scale()).isEqualTo(2);
     }
 
+    @Test
+    public void reservation_negativePrice_reject() {
+        var room = "room 1";
+        var reservedBy = "Andrey";
+        var start = Instant.now().plus(1, ChronoUnit.MINUTES);
+        var end = start.plus(1, ChronoUnit.HOURS);
+        var comment = "";
+
+        var price1 = new BigDecimal("-100.0");
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> {
+             ModernReservation.make(room, reservedBy, start, end, price1, comment);
+        }).withMessageContaining("price cannot be negative");
+    }
+
+     @Test
+    public void reservation_nullPrice_reject() {
+        var room = "room 1";
+        var reservedBy = "Andrey";
+        var start = Instant.now().plus(1, ChronoUnit.MINUTES);
+        var end = start.plus(1, ChronoUnit.HOURS);
+        var comment = "";
+        BigDecimal price1 = null;
+
+        assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> {
+             ModernReservation.make(room, reservedBy, start, end, price1, comment);
+        }).withMessageContaining("price cannot be null");
+    }
+
     private Instant getNextDayDateTime(LocalTime time) {
         if (time == null) {
             return null;
