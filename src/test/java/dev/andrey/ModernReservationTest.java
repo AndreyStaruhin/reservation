@@ -105,7 +105,7 @@ public class ModernReservationTest {
     ,"room1, room2, 10:00, 11:00,  10:30, 11:30, false"
     ,"room1, room1, 10:00, 11:00,  10:30, 10:45, true"
     ,"room1, room1, 10:00, 11:00,  09:30, 11:45, true"})
-    public void twoReservations_twoTimeSlots_intersects(String room1, String room2, String start1, String end1,
+    public void twoReservations_changeTimeslotsAndRooms_trueIfIntersects(String room1, String room2, String start1, String end1,
             String start2, String end2, boolean intersected) {
 
         LocalTime startime1 = LocalTime.parse(start1);
@@ -128,7 +128,7 @@ public class ModernReservationTest {
        var reservation2 =  ModernReservation.make(room2, reservedBy, startDateTime2, 
             endDateTime2, price1, "");
     
-       assertThat(reservation1.checkIintersectsWith(reservation2)).isEqualTo(intersected);
+       assertThat(reservation1.intersectsWith(reservation2)).isEqualTo(intersected);
     }
 
     @ParameterizedTest()
@@ -199,6 +199,34 @@ public class ModernReservationTest {
         var reservation1 = ModernReservation.make(room, reservedBy, start, end, price1, comment);
 
         assertThat(reservation1.getPrice().scale()).isEqualTo(2);
+    }
+
+    @Test
+    public void reservation_negativePrice_reject() {
+        var room = "room 1";
+        var reservedBy = "Andrey";
+        var start = Instant.now().plus(1, ChronoUnit.MINUTES);
+        var end = start.plus(1, ChronoUnit.HOURS);
+        var comment = "";
+
+        var price1 = new BigDecimal("-100.0");
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> {
+             ModernReservation.make(room, reservedBy, start, end, price1, comment);
+        }).withMessageContaining("price cannot be negative");
+    }
+
+     @Test
+    public void reservation_nullPrice_reject() {
+        var room = "room 1";
+        var reservedBy = "Andrey";
+        var start = Instant.now().plus(1, ChronoUnit.MINUTES);
+        var end = start.plus(1, ChronoUnit.HOURS);
+        var comment = "";
+        BigDecimal price1 = null;
+
+        assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> {
+             ModernReservation.make(room, reservedBy, start, end, price1, comment);
+        }).withMessageContaining("price cannot be null");
     }
 
     private Instant getNextDayDateTime(LocalTime time) {

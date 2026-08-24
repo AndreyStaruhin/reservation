@@ -48,7 +48,7 @@ public class ModernReservation {
         return comment;
     }
 
-    private List<String> baseValidation(String room, String reservedBy, Instant start, Instant end, String comment) {
+    private static List<String> baseValidation(String room, String reservedBy, Instant start, Instant end, BigDecimal price, String comment) {
         var errors = new ArrayList<String>();
         if (start.isAfter(end)) {
             errors.add("Дата начала должна быть больше даты конца");
@@ -66,6 +66,10 @@ public class ModernReservation {
 
         if (reservedBy.isBlank()) {
             errors.add("Не указано имя бронирующего");
+        }
+
+        if(price.signum() < 0) {
+            errors.add("price cannot be negative");
         }
 
         return errors;
@@ -106,8 +110,9 @@ public class ModernReservation {
         Objects.requireNonNull(reservedBy, "reservedBy cannot be null");
         Objects.requireNonNull(start, "start cannot be null");
         Objects.requireNonNull(end, "end cannot be null");
+        Objects.requireNonNull(price, "price cannot be null");
 
-        var errors = baseValidation(room, reservedBy, start, end, comment);
+        var errors = baseValidation(room, reservedBy, start, end, price ,comment);
         
         if (!errors.isEmpty()) {
             throw new IllegalArgumentException(errors.toString());
@@ -140,7 +145,7 @@ public class ModernReservation {
         return new ModernReservation(anotherRoom, reservedBy, start, end, price, comment);
     }
 
-    public boolean checkIintersectsWith(ModernReservation other) {
+    public boolean intersectsWith(ModernReservation other) {
        
         if(!room.equals(other.getRoom())) {
             return false;
