@@ -1,11 +1,12 @@
 package dev.andrey;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.*;
 
 /**
  * Reservation
@@ -51,11 +52,9 @@ public class ModernReservation {
     private static List<String> baseValidation(String room, String reservedBy, Instant start, Instant end, BigDecimal price, String comment) {
         var errors = new ArrayList<String>();
         if (start.isAfter(end)) {
-            errors.add("Дата начала должна быть больше даты конца");
+            errors.add("Дата начала должна быть меньше даты конца");
         } else {
-            long diffMillis = Duration.between(start, end).toMillis();
-            long maxReservMillis = 8 * 60 * 60 * 1000;
-            if (diffMillis > maxReservMillis) {
+            if (Duration.between(start, end).compareTo(Duration.ofHours(8) ) > 0) {
                 errors.add("Нельзя резервировать больше чем на 8 часов");
             }
         }
@@ -136,11 +135,24 @@ public class ModernReservation {
         return new ModernReservation(room, reservedBy, start, end, price, comment);
     }
 
+    /**
+     * @param newEndTime новое значение времени завершения брони
+     * @return новая броня
+     * @throws NullPointerException если {@code newEndTime} равен {@code null}
+     * @throws IllegalArgumentException  {@code newEndTime} меньше start или разница со start больше 8 часов
+     */
     public ModernReservation extend(Instant newEndTime) {
 
         return new ModernReservation(room, reservedBy, start, newEndTime, price, comment);
     }
 
+    /**
+     * Перенос брони на другую комнату
+     * @param anotherRoom имя другой комнаты
+     * @throws NullPointerException если {@code anotherRoom} равен {@code null}
+     * @throws IllegalArgumentException  {@code anotherRoom} - пустая строка или строка из пробелов
+     * @return новая броня
+     */
     public ModernReservation passToAnotherRoom(String anotherRoom) {
         return new ModernReservation(anotherRoom, reservedBy, start, end, price, comment);
     }
@@ -150,7 +162,6 @@ public class ModernReservation {
         if(!room.equals(other.getRoom())) {
             return false;
         }
-
 
         var isAfter = start.isAfter(other.end) || start.equals(other.end);
         var isBefore = end.isBefore(other.start) || end.equals(other.start);
