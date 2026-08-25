@@ -135,6 +135,28 @@ public class ModernReservation {
         return new ModernReservation(room, reservedBy, start, end, price, comment);
     }
 
+    public static ReservationResult reserve(String room, String reservedBy, Instant start, Instant end, 
+        BigDecimal price,  String comment) {
+            Objects.requireNonNull(room, "room cannot be null");
+            Objects.requireNonNull(reservedBy, "reservedBy cannot be null");
+            Objects.requireNonNull(start, "start cannot be null");
+            Objects.requireNonNull(end, "end cannot be null");
+            Objects.requireNonNull(price, "price cannot be null");
+
+            List<String> errors = new ArrayList<>();
+            if (start.isBefore(Instant.now())) { 
+                errors.add("Нельзя забронировать на время в прошлом");
+            }
+            var baseErrors = baseValidation(room, reservedBy, start, end, price ,comment);
+            errors.addAll(baseErrors);
+
+            if(!errors.isEmpty()) {
+                return new ReservationResult.Rejected(errors);
+            }
+
+            return new ReservationResult.Booked(new ModernReservation(room, reservedBy, start, end, price, comment));
+    }
+
     /**
      * @param newEndTime новое значение времени завершения брони
      * @return новая броня
@@ -156,6 +178,7 @@ public class ModernReservation {
     public ModernReservation passToAnotherRoom(String anotherRoom) {
         return new ModernReservation(anotherRoom, reservedBy, start, end, price, comment);
     }
+    
 
     public boolean intersectsWith(ModernReservation other) {
        

@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import dev.andrey.ReservationResult.Rejected;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -215,7 +217,7 @@ public class ModernReservationTest {
         }).withMessageContaining("price cannot be negative");
     }
 
-     @Test
+    @Test
     public void reservation_nullPrice_reject() {
         var room = "room 1";
         var reservedBy = "Andrey";
@@ -227,6 +229,54 @@ public class ModernReservationTest {
         assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> {
              ModernReservation.make(room, reservedBy, start, end, price1, comment);
         }).withMessageContaining("price cannot be null");
+    }
+
+    @Test
+    public void reservation_roomIsEmpty_rejectByEmpty2(){
+        String room = "";
+        var reservedBy = "Andrey";
+        var start = Instant.now().plus(1, ChronoUnit.MINUTES);
+        var end = start.plus(1, ChronoUnit.HOURS);
+        var comment = "";
+        var price1 = new BigDecimal("100.00");
+
+        var reservationResult = ModernReservation.reserve(room, reservedBy, start, end, price1, comment);
+        assertThat(reservationResult).isInstanceOf(Rejected.class);
+        assertThat(((Rejected)reservationResult).errors()).contains("Не указана комната");
+    }
+
+     @Test
+    public void reservation_negativePrice_reject2() {
+        var room = "room 1";
+        var reservedBy = "Andrey";
+        var start = Instant.now().plus(1, ChronoUnit.MINUTES);
+        var end = start.plus(1, ChronoUnit.HOURS);
+        var comment = "";
+
+        var price1 = new BigDecimal("-100.0");
+
+        
+        var reservationResult = ModernReservation.reserve(room, reservedBy, start, end, price1, comment);
+        assertThat(reservationResult).isInstanceOf(Rejected.class);
+        assertThat(((Rejected)reservationResult).errors()).contains("price cannot be negative");
+    }
+
+    @Test
+    public void reservation_negativePriceAndRoomIsEmpty_rejectWithTwoErrors() {
+        var room = "";
+        var reservedBy = "Andrey";
+        var start = Instant.now().plus(1, ChronoUnit.MINUTES);
+        var end = start.plus(1, ChronoUnit.HOURS);
+        var comment = "";
+
+        var price1 = new BigDecimal("-100.0");
+
+        
+        var reservationResult = ModernReservation.reserve(room, reservedBy, start, end, price1, comment);
+        assertThat(reservationResult).isInstanceOf(Rejected.class);
+        if(reservationResult instanceof Rejected rejected) {
+            assertThat(rejected.errors()).hasSize(2);
+        }
     }
 
     private Instant getNextDayDateTime(LocalTime time) {
